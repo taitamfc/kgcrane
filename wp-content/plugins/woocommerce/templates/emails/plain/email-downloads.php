@@ -10,14 +10,14 @@
  * happen. When this occurs the version of the template file will be bumped and
  * the readme will list any important changes.
  *
- * @see https://docs.woocommerce.com/document/template-structure/
- * @package WooCommerce/Templates
+ * @see https://woo.com/document/template-structure/
+ * @package WooCommerce\Templates
  * @version 3.4.0
  */
 
 defined( 'ABSPATH' ) || exit;
 
-echo esc_html( wc_strtoupper( __( 'Downloads', 'woocommerce' ) ) ) . "\n\n";
+echo esc_html( wc_strtoupper( esc_html__( 'Downloads', 'woocommerce' ) ) ) . "\n\n";
 
 foreach ( $downloads as $download ) {
 	foreach ( $columns as $column_id => $column_name ) {

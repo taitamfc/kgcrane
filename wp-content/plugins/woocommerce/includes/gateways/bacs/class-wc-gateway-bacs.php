@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @class       WC_Gateway_BACS
  * @extends     WC_Payment_Gateway
  * @version     2.1.0
- * @package     WooCommerce/Classes/Payment
+ * @package     WooCommerce\Classes\Payment
  */
 class WC_Gateway_BACS extends WC_Payment_Gateway {
 
@@ -29,6 +29,20 @@ class WC_Gateway_BACS extends WC_Payment_Gateway {
 	public $locale;
 
 	/**
+	 * Gateway instructions that will be added to the thank you page and emails.
+	 *
+	 * @var string
+	 */
+	public $instructions;
+
+	/**
+	 * Account details.
+	 *
+	 * @var array
+	 */
+	public $account_details;
+
+	/**
 	 * Constructor for the gateway.
 	 */
 	public function __construct() {
@@ -37,7 +51,7 @@ class WC_Gateway_BACS extends WC_Payment_Gateway {
 		$this->icon               = apply_filters( 'woocommerce_bacs_icon', '' );
 		$this->has_fields         = false;
 		$this->method_title       = __( 'Direct bank transfer', 'woocommerce' );
-		$this->method_description = __( 'Take payments in person via BACS. More commonly known as direct bank/wire transfer', 'woocommerce' );
+		$this->method_description = __( 'Take payments in person via BACS. More commonly known as direct bank/wire transfer.', 'woocommerce' );
 
 		// Load the settings.
 		$this->init_form_fields();
@@ -86,7 +100,7 @@ class WC_Gateway_BACS extends WC_Payment_Gateway {
 			),
 			'title'           => array(
 				'title'       => __( 'Title', 'woocommerce' ),
-				'type'        => 'text',
+				'type'        => 'safe_text',
 				'description' => __( 'This controls the title which the user sees during checkout.', 'woocommerce' ),
 				'default'     => __( 'Direct bank transfer', 'woocommerce' ),
 				'desc_tip'    => true,
@@ -129,7 +143,12 @@ class WC_Gateway_BACS extends WC_Payment_Gateway {
 
 		?>
 		<tr valign="top">
-			<th scope="row" class="titledesc"><?php esc_html_e( 'Account details:', 'woocommerce' ); ?></th>
+			<th scope="row" class="titledesc">
+				<label>
+					<?php esc_html_e( 'Account details:', 'woocommerce' ); ?>
+					<?php echo wp_kses_post( wc_help_tip( __( 'These account details will be displayed within the order thank you page and confirmation email.', 'woococommerce' ) ) ); ?>
+				</label>
+			</th>
 			<td class="forminp" id="bacs_accounts">
 				<div class="wc_input_table_wrapper">
 					<table class="widefat wc_input_table sortable" cellspacing="0">
@@ -205,7 +224,7 @@ class WC_Gateway_BACS extends WC_Payment_Gateway {
 
 		$accounts = array();
 
-		// phpcs:disable WordPress.CSRF.NonceVerification.NoNonceVerification -- Nonce verification already handled in WC_Admin_Settings::save()
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verification already handled in WC_Admin_Settings::save()
 		if ( isset( $_POST['bacs_account_name'] ) && isset( $_POST['bacs_account_number'] ) && isset( $_POST['bacs_bank_name'] )
 			 && isset( $_POST['bacs_sort_code'] ) && isset( $_POST['bacs_iban'] ) && isset( $_POST['bacs_bic'] ) ) {
 
@@ -233,6 +252,7 @@ class WC_Gateway_BACS extends WC_Payment_Gateway {
 		}
 		// phpcs:enable
 
+		do_action( 'woocommerce_update_option', array( 'id' => 'woocommerce_bacs_accounts' ) );
 		update_option( 'woocommerce_bacs_accounts', $accounts );
 	}
 
@@ -258,8 +278,14 @@ class WC_Gateway_BACS extends WC_Payment_Gateway {
 	 * @param bool     $plain_text Email format: plain text or HTML.
 	 */
 	public function email_instructions( $order, $sent_to_admin, $plain_text = false ) {
-
-		if ( ! $sent_to_admin && 'bacs' === $order->get_payment_method() && $order->has_status( 'on-hold' ) ) {
+		/**
+		 * Filter the email instructions order status.
+		 *
+		 * @since 7.4
+		 * @param string $terms The order status.
+		 * @param object $order The order object.
+		 */
+		if ( ! $sent_to_admin && 'bacs' === $order->get_payment_method() && $order->has_status( apply_filters( 'woocommerce_bacs_email_instructions_order_status', 'on-hold', $order ) ) ) {
 			if ( $this->instructions ) {
 				echo wp_kses_post( wpautop( wptexturize( $this->instructions ) ) . PHP_EOL );
 			}
@@ -289,7 +315,7 @@ class WC_Gateway_BACS extends WC_Payment_Gateway {
 		// Get sortcode label in the $locale array and use appropriate one.
 		$sortcode = isset( $locale[ $country ]['sortcode']['label'] ) ? $locale[ $country ]['sortcode']['label'] : __( 'Sort code', 'woocommerce' );
 
-		$bacs_accounts = apply_filters( 'woocommerce_bacs_accounts', $this->account_details );
+		$bacs_accounts = apply_filters( 'woocommerce_bacs_accounts', $this->account_details, $order_id );
 
 		if ( ! empty( $bacs_accounts ) ) {
 			$account_html = '';
@@ -306,7 +332,8 @@ class WC_Gateway_BACS extends WC_Payment_Gateway {
 
 				// BACS account fields shown on the thanks page and in emails.
 				$account_fields = apply_filters(
-					'woocommerce_bacs_account_fields', array(
+					'woocommerce_bacs_account_fields',
+					array(
 						'bank_name'      => array(
 							'label' => __( 'Bank', 'woocommerce' ),
 							'value' => $bacs_account->bank_name,
@@ -327,7 +354,8 @@ class WC_Gateway_BACS extends WC_Payment_Gateway {
 							'label' => __( 'BIC', 'woocommerce' ),
 							'value' => $bacs_account->bic,
 						),
-					), $order_id
+					),
+					$order_id
 				);
 
 				foreach ( $account_fields as $field_key => $field ) {
@@ -386,7 +414,8 @@ class WC_Gateway_BACS extends WC_Payment_Gateway {
 
 			// Locale information to be used - only those that are not 'Sort Code'.
 			$this->locale = apply_filters(
-				'woocommerce_get_bacs_locale', array(
+				'woocommerce_get_bacs_locale',
+				array(
 					'AU' => array(
 						'sortcode' => array(
 							'label' => __( 'BSB', 'woocommerce' ),

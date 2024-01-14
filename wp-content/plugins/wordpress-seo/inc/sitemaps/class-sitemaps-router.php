@@ -5,6 +5,8 @@
  * @package WPSEO\XML_Sitemaps
  */
 
+use Yoast\WP\SEO\Conditionals\Deactivating_Yoast_Seo_Conditional;
+
 /**
  * Rewrite setup and handling for sitemaps functionality.
  */
@@ -14,17 +16,20 @@ class WPSEO_Sitemaps_Router {
 	 * Sets up init logic.
 	 */
 	public function __construct() {
+		// If we add rewrite rules during the plugin's deactivation, the flush_rewrite_rules that we perform afterwards won't properly flush those new rules.
+		if ( YoastSEO()->classes->get( Deactivating_Yoast_Seo_Conditional::class )->is_met() ) {
+			return;
+		}
 
-		add_action( 'init', array( $this, 'init' ), 1 );
-		add_filter( 'redirect_canonical', array( $this, 'redirect_canonical' ) );
-		add_action( 'template_redirect', array( $this, 'template_redirect' ), 0 );
+		add_action( 'init', [ $this, 'init' ], 1 );
+		add_filter( 'redirect_canonical', [ $this, 'redirect_canonical' ] );
+		add_action( 'template_redirect', [ $this, 'template_redirect' ], 0 );
 	}
 
 	/**
 	 * Sets up rewrite rules.
 	 */
 	public function init() {
-
 		global $wp;
 
 		$wp->add_query_var( 'sitemap' );
@@ -41,7 +46,7 @@ class WPSEO_Sitemaps_Router {
 	 *
 	 * @param string $redirect The redirect URL currently determined.
 	 *
-	 * @return bool|string $redirect
+	 * @return bool|string
 	 */
 	public function redirect_canonical( $redirect ) {
 
@@ -60,8 +65,7 @@ class WPSEO_Sitemaps_Router {
 			return;
 		}
 
-		header( 'X-Redirect-By: Yoast SEO' );
-		wp_redirect( home_url( '/sitemap_index.xml' ), 301, 'Yoast SEO' );
+		wp_safe_redirect( home_url( '/sitemap_index.xml' ), 301, 'Yoast SEO' );
 		exit;
 	}
 
@@ -91,7 +95,7 @@ class WPSEO_Sitemaps_Router {
 		}
 
 		// Due to different environment configurations, we need to check both SERVER_NAME and HTTP_HOST.
-		$check_urls = array( $protocol . $domain . $path );
+		$check_urls = [ $protocol . $domain . $path ];
 		if ( ! empty( $_SERVER['HTTP_HOST'] ) ) {
 			$check_urls[] = $protocol . sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) . $path;
 		}

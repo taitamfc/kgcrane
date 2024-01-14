@@ -6,6 +6,8 @@
  * @version 3.3.0
  */
 
+use Automattic\WooCommerce\Internal\Utilities\WebhookUtil;
+
 defined( 'ABSPATH' ) || exit;
 
 if ( ! class_exists( 'WP_List_Table' ) ) {
@@ -13,7 +15,7 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
 }
 
 /**
- * Webooks table list class.
+ * Webhooks table list class.
  */
 class WC_Admin_Webhooks_Table_List extends WP_List_Table {
 
@@ -86,8 +88,10 @@ class WC_Admin_Webhooks_Table_List extends WP_List_Table {
 					add_query_arg(
 						array(
 							'delete' => $webhook->get_id(),
-						), admin_url( 'admin.php?page=wc-settings&tab=advanced&section=webhooks' )
-					), 'delete-webhook'
+						),
+						admin_url( 'admin.php?page=wc-settings&tab=advanced&section=webhooks' )
+					),
+					'delete-webhook'
 				)
 			) . '">' . esc_html__( 'Delete permanently', 'woocommerce' ) . '</a>',
 		);
@@ -172,7 +176,8 @@ class WC_Admin_Webhooks_Table_List extends WP_List_Table {
 		$num_webhooks   = $data_store->get_count_webhooks_by_status();
 		$total_webhooks = array_sum( (array) $num_webhooks );
 		$statuses       = array_keys( wc_get_webhook_statuses() );
-		$class          = empty( $_REQUEST['status'] ) ? ' class="current"' : ''; // WPCS: input var okay. CSRF ok.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$class = empty( $_REQUEST['status'] ) && empty( $_REQUEST['legacy'] ) ? ' class="current"' : '';
 
 		/* translators: %s: count */
 		$status_links['all'] = "<a href='admin.php?page=wc-settings&amp;tab=advanced&amp;section=webhooks'$class>" . sprintf( _nx( 'All <span class="count">(%s)</span>', 'All <span class="count">(%s)</span>', $total_webhooks, 'posts', 'woocommerce' ), number_format_i18n( $total_webhooks ) ) . '</a>';
@@ -184,13 +189,28 @@ class WC_Admin_Webhooks_Table_List extends WP_List_Table {
 				continue;
 			}
 
-			if ( isset( $_REQUEST['status'] ) && sanitize_key( wp_unslash( $_REQUEST['status'] ) ) === $status_name ) { // WPCS: input var okay, CSRF ok.
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			if ( isset( $_REQUEST['status'] ) && sanitize_key( wp_unslash( $_REQUEST['status'] ) ) === $status_name ) {
 				$class = ' class="current"';
 			}
 
 			$label = $this->get_status_label( $status_name, $num_webhooks[ $status_name ] );
 
 			$status_links[ $status_name ] = "<a href='admin.php?page=wc-settings&amp;tab=advanced&amp;section=webhooks&amp;status=$status_name'$class>" . sprintf( translate_nooped_plural( $label, $num_webhooks[ $status_name ] ), number_format_i18n( $num_webhooks[ $status_name ] ) ) . '</a>';
+		}
+
+		$legacy_webhooks_count = wc_get_container()->get( WebhookUtil::class )->get_legacy_webhooks_count();
+		if ( $legacy_webhooks_count > 0 ) {
+			$class = '';
+
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			if ( 'true' === sanitize_key( wp_unslash( $_REQUEST['legacy'] ?? '' ) ) ) {
+				$class = ' class="current"';
+			}
+
+			$label = $this->get_status_label( __( 'Legacy', 'woocommerce' ), $legacy_webhooks_count );
+
+			$status_links['legacy'] = "<a href='admin.php?page=wc-settings&amp;tab=advanced&amp;section=webhooks&amp;legacy=true'$class>" . sprintf( translate_nooped_plural( $label, $legacy_webhooks_count ), number_format_i18n( $legacy_webhooks_count ) ) . '</a>';
 		}
 
 		return $status_links;
@@ -214,12 +234,16 @@ class WC_Admin_Webhooks_Table_List extends WP_List_Table {
 		$action   = $this->current_action();
 		$webhooks = isset( $_REQUEST['webhook'] ) ? array_map( 'absint', (array) $_REQUEST['webhook'] ) : array(); // WPCS: input var okay, CSRF ok.
 
-		if ( ! current_user_can( 'manage_woocommerce' ) ) {
-			wp_die( esc_html__( 'You do not have permission to edit Webhooks', 'woocommerce' ) );
-		}
+		if ( false !== $action ) {
+			check_admin_referer( 'woocommerce-settings' );
 
-		if ( 'delete' === $action ) {
-			WC_Admin_Webhooks::bulk_delete( $webhooks );
+			if ( ! current_user_can( 'manage_woocommerce' ) ) {
+				wp_die( esc_html__( 'You do not have permission to edit Webhooks', 'woocommerce' ) );
+			}
+
+			if ( 'delete' === $action ) {
+				WC_Admin_Webhooks::bulk_delete( $webhooks );
+			}
 		}
 	}
 
@@ -262,7 +286,10 @@ class WC_Admin_Webhooks_Table_List extends WP_List_Table {
 		echo '<label class="screen-reader-text" for="' . esc_attr( $input_id ) . '">' . esc_html( $text ) . ':</label>';
 		echo '<input type="search" id="' . esc_attr( $input_id ) . '" name="s" value="' . esc_attr( $search_query ) . '" />';
 		submit_button(
-			$text, '', '', false,
+			$text,
+			'',
+			'',
+			false,
 			array(
 				'id' => 'search-submit',
 			)
@@ -292,22 +319,24 @@ class WC_Admin_Webhooks_Table_List extends WP_List_Table {
 			$args['search'] = sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ); // WPCS: input var okay, CSRF ok.
 		}
 
+		$args['paginate'] = true;
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( 'true' === sanitize_key( wp_unslash( $_REQUEST['legacy'] ?? null ) ) ) {
+			$args['api_version'] = -1;
+		}
+
 		// Get the webhooks.
 		$data_store  = WC_Data_Store::load( 'webhook' );
 		$webhooks    = $data_store->search_webhooks( $args );
-		$this->items = array_map( 'wc_get_webhook', $webhooks );
-
-		// Get total items.
-		$args['limit']  = -1;
-		$args['offset'] = 0;
-		$total_items    = count( $data_store->search_webhooks( $args ) );
+		$this->items = array_map( 'wc_get_webhook', $webhooks->webhooks );
 
 		// Set the pagination.
 		$this->set_pagination_args(
 			array(
-				'total_items' => $total_items,
+				'total_items' => $webhooks->total,
 				'per_page'    => $per_page,
-				'total_pages' => ceil( $total_items / $per_page ),
+				'total_pages' => $webhooks->max_num_pages,
 			)
 		);
 	}

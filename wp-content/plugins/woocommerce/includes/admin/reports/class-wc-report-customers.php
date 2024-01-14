@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * WC_Report_Customers
  *
- * @package     WooCommerce/Admin/Reports
+ * @package     WooCommerce\Admin\Reports
  * @version     2.1.0
  */
 class WC_Report_Customers extends WC_Admin_Report {
@@ -155,7 +155,7 @@ class WC_Report_Customers extends WC_Admin_Report {
 					}
 				);
 
-				jQuery('.chart-placeholder.customers_vs_guests').resize();
+				jQuery('.chart-placeholder.customers_vs_guests').trigger( 'resize' );
 			});
 		</script>
 		<?php
@@ -203,9 +203,12 @@ class WC_Report_Customers extends WC_Admin_Report {
 		);
 
 		$users_query = new WP_User_Query(
-			array(
-				'fields'  => array( 'user_registered' ),
-				'exclude' => array_merge( $admin_users->get_results(), $manager_users->get_results() ),
+			apply_filters(
+				'woocommerce_admin_report_customers_user_query_args',
+				array(
+					'fields'  => array( 'user_registered' ),
+					'exclude' => array_merge( $admin_users->get_results(), $manager_users->get_results() ),
+				)
 			)
 		);
 
@@ -409,15 +412,15 @@ class WC_Report_Customers extends WC_Admin_Report {
 							],
 						}
 					);
-					jQuery('.chart-placeholder').resize();
+					jQuery('.chart-placeholder').trigger( 'resize' );
 				}
 
 				drawGraph();
 
-				jQuery('.highlight_series').hover(
+				jQuery('.highlight_series').on( 'mouseenter',
 					function() {
 						drawGraph( jQuery(this).data('series') );
-					},
+					} ).on( 'mouseleave',
 					function() {
 						drawGraph();
 					}

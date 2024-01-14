@@ -75,22 +75,8 @@ class WPSEO_Admin_Utils {
 	public static function get_new_tab_message() {
 		return sprintf(
 			'<span class="screen-reader-text">%s</span>',
+			/* translators: Hidden accessibility text. */
 			esc_html__( '(Opens in a new browser tab)', 'wordpress-seo' )
 		);
-	}
-
-	/* ********************* DEPRECATED METHODS ********************* */
-
-	/**
-	 * Determines whether or not the user has an invalid version of PHP installed.
-	 *
-	 * @deprecated 8.1
-	 * @codeCoverageIgnore
-	 *
-	 * @return bool Whether or not PHP 5.2 or lower is installed.
-	 */
-	public static function is_supported_php_version_installed() {
-		// Intentionally left blank.
-		return true;
 	}
 }
