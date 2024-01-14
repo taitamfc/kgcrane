@@ -1,0 +1,35 @@
+body.user-edit-php .yoast.yoast-settings,
+body.user-edit-php .user-rich-editing-wrap,
+body.user-edit-php .user-admin-color-wrap,
+body.user-edit-php .user-comment-shortcuts-wrap,
+body.user-edit-php .user-admin-bar-front-wrap,
+body.user-edit-php .user-language-wrap,
+body.user-edit-php #fieldset-billing,
+body.user-edit-php #fieldset-shipping,
+body.user-edit-php .user-url-wrap,
+body.user-edit-php .user-facebook-wrap,
+body.user-edit-php .user-instagram-wrap,
+body.user-edit-php .user-linkedin-wrap,
+body.user-edit-php .user-myspace-wrap,
+body.user-edit-php .user-pinterest-wrap,
+body.user-edit-php .user-soundcloud-wrap,
+body.user-edit-php .user-tumblr-wrap,
+body.user-edit-php .user-twitter-wrap,
+body.user-edit-php .user-youtube-wrap,
+body.user-edit-php .user-wikipedia-wrap,
+body.user-edit-php .user-description-wrap,
+body.user-edit-php .user-profile-picture,
+body.user-edit-php .user-display-name-wrap,
+#application-passwords-section
+{
+    display: none;
+}
+.tim_sku {
+    cursor: pointer;
+}
+table.custom-table {
+    width: 100%;
+}
+/* div[data-name="product_id"] {
+    display: none;
+} */
