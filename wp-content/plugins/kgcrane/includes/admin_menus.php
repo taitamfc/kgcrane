@@ -20,6 +20,13 @@ function wporg_options_page() {
     );
 
     add_submenu_page($parrent_slug,
+        'Phụ tùng',
+        'Phụ tùng',
+        'manage_options',
+        'edit.php?post_type=phu_tung'
+    );
+
+    add_submenu_page($parrent_slug,
         'Sản Phẩm',
         'Sản Phẩm',
         'manage_options',

@@ -3,7 +3,8 @@
 add_action('init','noktali_custom_post_type');
 function noktali_custom_post_type(){
     $post_types = [
-        'pricing' => 'Báo giá'
+        'pricing' => 'Báo giá',
+        'phu_tung' => 'Phụ tùng'
     ];
     foreach( $post_types as $post_name => $post_label ){
         $args = array(
