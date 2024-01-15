@@ -76,4 +76,40 @@ function ttfc_admin_columns_pricing_render_comlums($column, $post_id){
     }
 }
 
+// Hiển thị các cột phụ tùng ra bảng
+add_filter('manage_phu_tung_posts_columns','ttfc_admin_columns_phu_tung_filter_comlums');
+function ttfc_admin_columns_phu_tung_filter_comlums($column, $post_id){
+    $comlums['key_no']      = 'Key no';
+    $comlums['part_no']     = 'Part no';
+    $comlums['part_name']   = 'Part name';
+    $comlums['qty']         = 'Qty';
+    $comlums['remarks']     = 'Remarks';
+    $comlums['price']       = 'Price';
+    return $comlums;
+}
+// Hiển thị ra màn hình
+add_action('manage_phu_tung_posts_custom_column','ttfc_admin_columns_phu_tung_render_comlums',10,2);
+function ttfc_admin_columns_phu_tung_render_comlums($column, $post_id){
+    switch ($column) {
+        case 'key_no':
+            echo get_field( 'key_no', $post_id );
+            break;
+        case 'part_no':
+            echo get_field( 'part_no', $post_id );
+            break;
+        case 'part_name':
+            echo get_field( 'part_name', $post_id );
+            break;
+        case 'qty':
+            echo get_field( 'qty', $post_id );
+            break;
+        case 'remarks':
+            echo get_field( 'remarks', $post_id );
+            break;
+        case 'price':
+            echo get_field( 'price', $post_id );
+            break;
+    }
+}
+
 
