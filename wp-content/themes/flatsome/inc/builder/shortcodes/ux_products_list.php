@@ -6,7 +6,7 @@ $options = array(
 'filter_posts' => array(
     'type' => 'group',
     'heading' => __( 'Filter Posts' ),
-    'conditions' => 'ids === ""',
+    'conditions' => 'ids == ""',
     'options' => array(
          'orderby' => array(
             'type' => 'select',
@@ -16,6 +16,7 @@ $options = array(
                 'normal' => 'Normal',
                 'title' => 'Title',
                 'sales' => 'Sales',
+				'price' => 'Price',
                 'rand' => 'Random',
                 'date' => 'Date'
             )
@@ -55,9 +56,10 @@ $options = array(
 $options['post_options']['options']['tags'] = array(
   'type' => 'select',
   'heading' => 'Tag',
-  'conditions' => 'ids === ""',
+  'conditions' => 'ids == ""',
   'default' => '',
   'config' => array(
+	  'multiple' => true,
       'placeholder' => 'Select...',
       'termSelect' => array(
           'post_type' => 'product',

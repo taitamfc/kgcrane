@@ -10,9 +10,10 @@
  * happen. When this occurs the version of the template file will be bumped and
  * the readme will list any important changes.
  *
- * @see https://docs.woocommerce.com/document/template-structure/
- * @package WooCommerce/Templates
- * @version 3.4.0
+ * @see              https://docs.woocommerce.com/document/template-structure/
+ * @package          WooCommerce/Templates
+ * @version          3.4.0
+ * @flatsome-version 3.16.0
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -23,11 +24,7 @@ get_header( 'shop' );
 if(is_shop() && flatsome_option('html_shop_page_content') && ! $wp_query->is_search() && $wp_query->query_vars['paged'] < 1 ){
    	echo do_shortcode('<div class="shop-page-content">'.flatsome_option('html_shop_page_content').'</div>');
 } else {
-	if ( fl_woocommerce_version_check( '3.3.0' ) ) {
-		wc_get_template_part( 'layouts/category', flatsome_option( 'category_sidebar' ) );
-	} else {
-		wc_get_template_part( 'back-comp/layouts/w32-category', flatsome_option( 'category_sidebar' ) );
-	}
+	wc_get_template_part( 'layouts/category', flatsome_option( 'category_sidebar' ) );
 }
 
 get_footer( 'shop' );

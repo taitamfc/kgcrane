@@ -1,4 +1,13 @@
-<div class="product-main 123">
+<?php
+/**
+ * Product with left full sidebar.
+ *
+ * @package          Flatsome/WooCommerce/Templates
+ * @flatsome-version 3.16.0
+ */
+
+?>
+<div class="product-main">
  <div class="row content-row row-divided row-large">
 
  	<div id="product-sidebar" class="col large-3 hide-for-medium shop-sidebar <?php flatsome_sidebar_classes(); ?>">
@@ -15,9 +24,9 @@
 				dynamic_sidebar('shop-sidebar');
 			}
 		?>
-	</div><!-- col large-3 -->
+	</div>
 
-	<div class="col large-9 456">
+	<div class="col large-9">
 		<div class="row">
 			<div class="large-<?php echo flatsome_option('product_image_width'); ?> col">
 				<?php
@@ -49,10 +58,10 @@
 					do_action( 'woocommerce_single_product_summary' );
 				?>
 
-			</div><!-- .summary -->
+			</div>
 
 
-			</div><!-- .row -->
+			</div>
 			<div class="product-footer">
 			<?php
 					/**
@@ -65,8 +74,8 @@
 					do_action( 'woocommerce_after_single_product_summary' );
 				?>
 			</div>
-	
-    </div><!-- col large-9 -->
 
-</div><!-- .row -->
-</div><!-- .product-main -->
+    </div>
+
+</div>
+</div>

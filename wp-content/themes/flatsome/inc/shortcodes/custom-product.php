@@ -2,22 +2,30 @@
 
 add_shortcode( 'ux_product_gallery', function ( $atts ) {
 	extract( shortcode_atts( array(
-		'style' => 'normal',
+		'style'       => 'normal',
+		'grid_layout' => '',
 	), $atts ) );
 
 	if ( ! is_product() ) {
 		return null;
 	}
 
-	add_filter( 'theme_mod_product_image_style', function ( $input ) use ( $style ) {
+	add_filter( 'theme_mod_product_image_style', function () use ( $style ) {
 		return $style;
 	} );
 
-	if ( $style == 'full-width' ) {
-		add_filter( 'theme_mod_product_layout', function ( $input ) use ( $style ) {
-			return 'gallery-wide';
-		} );
-	}
+	add_filter( 'theme_mod_product_layout', function () use ( $style ) {
+		$layout = '';
+
+		if ( $style === 'full-width' ) $layout = 'gallery-wide';
+		if ( $style === 'stacked' ) $layout = 'stacked-right';
+
+		return $layout;
+	} );
+
+	add_filter( 'theme_mod_product_gallery_grid_layout', function () use ( $grid_layout ) {
+		return $grid_layout;
+	} );
 
 	ob_start();
 	wc_get_template_part( 'single-product/product-image' );
@@ -157,6 +165,12 @@ add_shortcode( 'ux_product_add_to_cart', function ( $atts ) {
 		return null;
 	}
 
+	add_filter( 'theme_mod_product_info_form', function () use ( $style ) {
+		if ( $style ) {
+			return $style;
+		}
+	} );
+
 	ob_start();
 	echo '<div class="add-to-cart-container form-' . $style . ' is-' . $size . '">';
 	woocommerce_template_single_add_to_cart();
@@ -264,6 +278,21 @@ add_shortcode( 'ux_product_breadcrumbs', function ( $atts ) {
 	echo '<div class="product-breadcrumb-container is-' . $size . '">';
 	flatsome_breadcrumb();
 	echo '</div>';
+
+	return ob_get_clean();
+} );
+
+add_shortcode( 'ux_product_next_prev_nav', function ( $atts ) {
+	$atts = shortcode_atts( array(
+		'class' => '',
+	), $atts, 'ux_product_next_prev_nav' );
+
+	if ( ! is_product() ) {
+		return null;
+	}
+
+	ob_start();
+	flatsome_product_next_prev_nav( $atts['class'] );
 
 	return ob_get_clean();
 } );

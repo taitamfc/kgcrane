@@ -1,4 +1,13 @@
-<?php $icon_style = get_theme_mod('account_icon_style'); ?>
+<?php
+/**
+ * Account element.
+ *
+ * @package          Flatsome\Templates
+ * @flatsome-version 3.16.0
+ */
+
+$icon_style = get_theme_mod('account_icon_style');
+?>
 <?php if(is_woocommerce_activated()){ ?>
 <li class="account-item has-icon
   <?php if(is_account_page()) echo ' active'; ?>
@@ -16,7 +25,7 @@
 		<?php
 		if ( get_theme_mod( 'header_account_username' ) ) {
 			$current_user = wp_get_current_user();
-			echo esc_html( $current_user->display_name );
+			echo apply_filters( 'flatsome_header_account_username', esc_html( $current_user->display_name ) );
 		} else {
 			esc_html_e( 'My account', 'woocommerce' );
 		}
@@ -30,7 +39,7 @@
     echo get_flatsome_icon('icon-user');
    } ?>
 
-</a><!-- .account-link -->
+</a>
 
 <?php } else { ?>
 <a href="<?php echo get_permalink( get_option('woocommerce_myaccount_page_id') ); ?>"
@@ -48,7 +57,7 @@
         echo get_flatsome_icon('icon-user');
     } ?>
 
-</a><!-- .account-login-link -->
+</a>
 <?php } ?>
 
 <?php if($icon_style && $icon_style !== 'image' && $icon_style !== 'plain') echo '</div>'; ?>

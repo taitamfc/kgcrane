@@ -10,9 +10,10 @@
  * happen. When this occurs the version of the template file will be bumped and
  * the readme will list any important changes.
  *
- * @see     https://docs.woocommerce.com/document/template-structure/
- * @package WooCommerce/Templates
- * @version 3.5.1
+ * @see              https://docs.woocommerce.com/document/template-structure/
+ * @package          WooCommerce/Templates
+ * @version          3.5.1
+ * @flatsome-version 3.16.1
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -95,6 +96,7 @@ if(get_theme_mod('product_zoom', 0)){
 
   $attachment_ids = $product->get_gallery_image_ids();
   $thumb_count = count($attachment_ids)+1;
+  $render_without_attachments = apply_filters( 'flatsome_single_product_thumbnails_render_without_attachments', false, $product, array( 'thumb_count' => $thumb_count ) );
 
   $rtl = 'false';
 
@@ -102,15 +104,18 @@ if(get_theme_mod('product_zoom', 0)){
 
   $thumb_cell_align = "left";
 
-  if ( $attachment_ids ) {
-    $loop     = 0;
-    $gallery_class = array('product-thumbnails','thumbnails');
+  if ( $attachment_ids || $render_without_attachments ) {
+	  $loop              = 0;
+	  $image_size        = 'gallery_thumbnail';
+	  $gallery_class     = array( 'product-thumbnails', 'thumbnails' );
+	  $gallery_thumbnail = wc_get_image_size( apply_filters( 'woocommerce_gallery_thumbnail_size', 'woocommerce_' . $image_size ) );
 
     if($thumb_count <= 5){
       $gallery_class[] = 'slider-no-arrows';
     }
 
     $gallery_class[] = 'slider row row-small row-slider slider-nav-small small-columns-4';
+	$gallery_class   = apply_filters( 'flatsome_single_product_thumbnails_classes', $gallery_class );
 
     ?>
     <div class="col large-2 large-col-first vertical-thumbnails pb-0">
@@ -130,16 +135,16 @@ if(get_theme_mod('product_zoom', 0)){
             }'
       ><?php
 
-       if ( has_post_thumbnail() ) : ?>
-      <?php
-        $image_size = 'gallery_thumbnail';
-        $gallery_thumbnail = wc_get_image_size( $image_size ); ?>
+       if ( has_post_thumbnail() ) :
+		   ?>
         <div class="col is-nav-selected first">
           <a>
             <?php
               $image_id = get_post_thumbnail_id($post->ID);
-              $image =  wp_get_attachment_image_src( $image_id, 'woocommerce_'.$image_size );
-              $image = '<img src="'.$image[0].'" width="'.$gallery_thumbnail['width'].'" height="'.$gallery_thumbnail['height'].'" class="attachment-woocommerce_thumbnail" />';
+              $image =  wp_get_attachment_image_src( $image_id, apply_filters( 'woocommerce_gallery_thumbnail_size', 'woocommerce_'.$image_size ) );
+              $image_alt = get_post_meta( $image_id, '_wp_attachment_image_alt', true );
+              $image = '<img src="'.$image[0].'" alt="'.$image_alt.'" width="'.$gallery_thumbnail['width'].'" height="'.$gallery_thumbnail['height'].'" class="attachment-woocommerce_thumbnail" />';
+
               echo $image;
             ?>
           </a>
@@ -150,15 +155,21 @@ if(get_theme_mod('product_zoom', 0)){
 
         $classes = array( '' );
         $image_class = esc_attr( implode( ' ', $classes ) );
-        $image =  wp_get_attachment_image_src( $attachment_id, apply_filters( 'single_product_small_thumbnail_size', 'woocommerce_'.$image_size ));
-        $image = '<img src="'.$image[0].'" width="'.$gallery_thumbnail['width'].'" height="'.$gallery_thumbnail['height'].'"  class="attachment-woocommerce_thumbnail" />';
+        $image =  wp_get_attachment_image_src( $attachment_id, apply_filters( 'woocommerce_gallery_thumbnail_size', 'woocommerce_'.$image_size ));
+
+		  if ( empty( $image ) ) {
+			  continue;
+		  }
+
+        $image_alt = get_post_meta( $attachment_id, '_wp_attachment_image_alt', true );
+        $image = '<img src="'.$image[0].'" alt="'.$image_alt.'" width="'.$gallery_thumbnail['width'].'" height="'.$gallery_thumbnail['height'].'"  class="attachment-woocommerce_thumbnail" />';
 
         echo apply_filters( 'woocommerce_single_product_image_thumbnail_html', sprintf( '<div class="col"><a>%s</a></div>', $image ), $attachment_id, $post->ID, $image_class );
 
         $loop++;
       }
       ?>
-    </div><!-- .product-thumbnails -->
-    </div><!-- .col -->
+    </div>
+    </div>
 <?php } ?>
 </div>

@@ -2,20 +2,21 @@
 // [ux_banner]
 function flatsome_ux_banner( $atts, $content = null ){
 
-	extract( shortcode_atts( array(
-		'_id'        => 'banner-' . rand(),
-		'visibility' => '',
-
+	extract( $atts = shortcode_atts( array(
+		'_id'                => 'banner-' . rand(),
+		'visibility'         => '',
+		// Layout.
 		'hover'              => '',
 		'hover_alt'          => '',
 		'alt'                => '',
 		'class'              => '',
 		'sticky'             => '',
 		'height'             => '',
+		'height__sm'         => '',
+		'height__md'         => '',
 		'container_width'    => '',
 		'mob_height'         => '', // Deprecated.
 		'tablet_height'      => '', // Deprecated.
-
 		// Background.
 		'bg'                 => '',
 		'parallax'           => '',
@@ -24,10 +25,31 @@ function flatsome_ux_banner( $atts, $content = null ){
 		'bg_size'            => 'large',
 		'bg_color'           => '',
 		'bg_overlay'         => '',
+		'bg_overlay__sm'     => '',
+		'bg_overlay__md'     => '',
 		'bg_pos'             => '',
-		'bg_pos_ie'          => '',
 		'effect'             => '',
-
+		// Shape divider.
+		'divider_top'            => '',
+		'divider_top_height'     => '150px',
+		'divider_top_height__sm' => null,
+		'divider_top_height__md' => null,
+		'divider_top_width'      => '100',
+		'divider_top_width__sm'  => null,
+		'divider_top_width__md'  => null,
+		'divider_top_fill'       => '',
+		'divider_top_flip'       => 'false',
+		'divider_top_to_front'   => 'false',
+		'divider'                => '',
+		'divider_height'         => '150px',
+		'divider_height__sm'     => null,
+		'divider_height__md'     => null,
+		'divider_width'          => '100',
+		'divider_width__sm'      => null,
+		'divider_width__md'      => null,
+		'divider_fill'           => '',
+		'divider_flip'           => 'false',
+		'divider_to_front'       => 'false',
 		// Video.
 		'video_mp4'          => '',
 		'video_ogg'          => '',
@@ -35,7 +57,7 @@ function flatsome_ux_banner( $atts, $content = null ){
 		'video_sound'        => 'false',
 		'video_loop'         => 'true',
 		'youtube'            => '',
-
+		'video_visibility'   => 'hide-for-medium',
 		// Border Control.
 		'border'             => '',
 		'border_color'       => '',
@@ -43,7 +65,6 @@ function flatsome_ux_banner( $atts, $content = null ){
 		'border_radius'      => '',
 		'border_style'       => '',
 		'border_hover'       => '',
-
 		// Deprecated (This is added to Text Box shortcode).
 		'animation'          => 'fadeIn',
 		'animate'            => '',
@@ -57,7 +78,6 @@ function flatsome_ux_banner( $atts, $content = null ){
 		'parallax_text'      => '',
 		'text_bg'            => '',
 		'padding'            => '',
-
 		// Link.
 		'link'               => '',
 		'target'             => '',
@@ -87,7 +107,7 @@ function flatsome_ux_banner( $atts, $content = null ){
 
    /* Has video */
    if($video_mp4 || $video_webm || $video_ogg) { $classes[] = 'has-video'; }
-   
+
    /* Sticky */
    if($sticky) $classes[] = 'sticky-section';
 
@@ -107,10 +127,6 @@ function flatsome_ux_banner( $atts, $content = null ){
     if($bg_overlay && strpos($bg_overlay,'#') !== false){
       $atts['bg_overlay'] = flatsome_hex2rgba($bg_overlay,'0.15');
     }
-
-
-   /* IE fallback */
-   $atts['bg_pos_ie'] = $bg_pos;
 
    /* Full height banner */
    if(strpos($height, '100%') !== false) {
@@ -151,13 +167,14 @@ function flatsome_ux_banner( $atts, $content = null ){
             <?php if($bg_overlay) echo '<div class="overlay"></div>' ?>
             <?php require( __DIR__ . '/commons/border.php' ) ;?>
             <?php if($effect) echo '<div class="effect-'.$effect.' bg-effect fill no-click"></div>'; ?>
-        </div><!-- bg-layers -->
+        </div>
+		<?php require __DIR__ . '/commons/shape-divider.php'; ?>
         <div class="banner-layers <?php if($container_width !== 'full-width') echo 'container'; ?>">
             <?php echo $start_link; ?><div class="fill banner-link"></div><?php echo $end_link; ?>
             <?php
             // Get Layers
             if (!get_theme_mod('flatsome_fallback', 1) || (has_shortcode( $content, 'text_box' ) || has_shortcode( $content, 'ux_hotspot' ) || has_shortcode( $content, 'ux_image' ))) {
-              echo flatsome_contentfix($content);
+              echo do_shortcode( $content );
             } else {
               $x = '50'; $y = '50';
               if($text_pos !== 'center'){
@@ -172,10 +189,10 @@ function flatsome_ux_banner( $atts, $content = null ){
               if($text_bg && !$padding) $padding = '30px 30px 30px 30px';
               $depth = '';
               if($text_bg) $depth = '1';
-              echo flatsome_contentfix('[text_box text_align="'.$text_align.'" parallax="'.$parallax_text.'" animate="'.$animation.'" depth="'.$depth.'" padding="'.$padding.'" bg="'.$text_bg.'" text_color="'.$text_color.'" width="'.intval($text_width).'" width__sm="60%" position_y="'.$y.'" position_x="'.$x.'"]'.$content.'[/text_box]');
+              echo do_shortcode( '[text_box text_align="'.$text_align.'" parallax="'.$parallax_text.'" animate="'.$animation.'" depth="'.$depth.'" padding="'.$padding.'" bg="'.$text_bg.'" text_color="'.$text_color.'" width="'.intval($text_width).'" width__sm="60%" position_y="'.$y.'" position_x="'.$x.'"]'.$content.'[/text_box]' );
             } ?>
-        </div><!-- .banner-layers -->
-      </div><!-- .banner-inner -->
+        </div>
+      </div>
 
       <?php
        // Add invisible image if height is not set.
@@ -206,10 +223,36 @@ function flatsome_ux_banner( $atts, $content = null ){
             'selector' => '.bg',
             'property' => 'background-position',
           ),
+		  'divider_top_height' => array(
+			  'selector' => '.ux-shape-divider--top svg',
+			  'property' => 'height',
+		  ),
+		  'divider_top_width'  => array(
+			  'selector' => '.ux-shape-divider--top svg',
+			  'property' => '--divider-top-width',
+			  'unit'     => '%',
+		  ),
+		  'divider_top_fill'   => array(
+			  'selector' => '.ux-shape-divider--top .ux-shape-fill',
+			  'property' => 'fill',
+		  ),
+		  'divider_height'     => array(
+			  'selector' => '.ux-shape-divider--bottom svg',
+			  'property' => 'height',
+		  ),
+		  'divider_width'      => array(
+			  'selector' => '.ux-shape-divider--bottom svg',
+			  'property' => '--divider-width',
+			  'unit'     => '%',
+		  ),
+		  'divider_fill'       => array(
+			  'selector' => '.ux-shape-divider--bottom .ux-shape-fill',
+			  'property' => 'fill',
+		  ),
         );
         echo ux_builder_element_style_tag($_id, $args, $atts);
       ?>
-  </div><!-- .banner -->
+  </div>
 
 <?php
   $content = ob_get_contents();

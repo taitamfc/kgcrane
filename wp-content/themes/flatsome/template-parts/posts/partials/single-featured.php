@@ -1,4 +1,12 @@
-<?php while ( have_posts() ) : the_post(); ?>
+<?php
+/**
+ * Post single featured.
+ *
+ * @package          Flatsome\Templates
+ * @flatsome-version 3.16.0
+ */
+
+while ( have_posts() ) : the_post(); ?>
   <div class="page-title blog-featured-title featured-title no-overflow">
 
   	<div class="page-title-bg fill">
@@ -12,6 +20,6 @@
   	 	<div class="flex-col flex-center text-center">
   			<?php get_template_part( 'template-parts/posts/partials/entry', 'title');  ?>
   	 	</div>
-  	</div><!-- flex-row -->
-  </div><!-- .page-title -->
+  	</div>
+  </div>
 <?php endwhile; ?>

@@ -10,12 +10,15 @@
  * happen. When this occurs the version of the template file will be bumped and
  * the readme will list any important changes.
  *
- * @see     https://docs.woocommerce.com/document/template-structure/
- * @package WooCommerce/Templates
- * @version 3.4.0
+ * @see              https://docs.woocommerce.com/document/template-structure/
+ * @package          WooCommerce/Templates
+ * @version          3.6.0
+ * @flatsome-version 3.16.0
  */
 
 defined( 'ABSPATH' ) || exit;
+
+global $product;
 
 ?>
 <div class="container">
@@ -28,12 +31,12 @@ defined( 'ABSPATH' ) || exit;
 	do_action( 'woocommerce_before_single_product' );
 
 	if ( post_password_required() ) {
-		echo get_the_password_form(); // WPCS: XSS ok.
+		echo get_the_password_form(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		return;
 	}
 	?>
-</div><!-- /.container -->
-<div id="product-<?php the_ID(); ?>" <?php fl_woocommerce_version_check( '3.4.0' ) ? wc_product_class() : post_class(); ?>>
+</div>
+<div id="product-<?php the_ID(); ?>" <?php wc_product_class( '', $product ); ?>>
 	<?php
 	// Get product page layout.
 	wc_get_template_part( 'single-product/layouts/product', flatsome_option( 'product_layout' ) );

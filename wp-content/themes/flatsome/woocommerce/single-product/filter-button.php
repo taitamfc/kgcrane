@@ -1,4 +1,11 @@
 <?php
+/**
+ * Product filter button.
+ *
+ * @package          Flatsome/WooCommerce/Templates
+ * @flatsome-version 3.16.0
+ */
+
 $custom_filter_text = get_theme_mod( 'category_filter_text' );
 $filter_text = $custom_filter_text ? $custom_filter_text : __( 'Filter', 'woocommerce' );
 ?>
@@ -7,7 +14,7 @@ $filter_text = $custom_filter_text ? $custom_filter_text : __( 'Filter', 'woocom
     data-open="#product-sidebar"
     data-pos="left"
     class="filter-button uppercase plain">
-      <i class="icon-menu"></i>
+      <i class="icon-equalizer"></i>
       <strong><?php echo $filter_text ?></strong>
   </a>
 </div>

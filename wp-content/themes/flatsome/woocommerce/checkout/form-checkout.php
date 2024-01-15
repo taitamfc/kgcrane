@@ -10,9 +10,10 @@
  * happen. When this occurs the version of the template file will be bumped and
  * the readme will list any important changes.
  *
- * @see https://docs.woocommerce.com/document/template-structure/
- * @package WooCommerce/Templates
- * @version 3.5.0
+ * @see              https://docs.woocommerce.com/document/template-structure/
+ * @package          WooCommerce/Templates
+ * @version          3.5.0
+ * @flatsome-version 3.16.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -38,11 +39,6 @@ $wrapper_classes = implode( ' ', $wrapper_classes );
 $row_classes     = implode( ' ', $row_classes );
 $main_classes    = implode( ' ', $main_classes );
 $sidebar_classes = implode( ' ', $sidebar_classes );
-
-
-if ( ! fl_woocommerce_version_check( '3.5.0' ) ) {
-	wc_print_notices();
-}
 
 do_action( 'woocommerce_before_checkout_form', $checkout );
 
@@ -80,16 +76,16 @@ if ( flatsome_option( 'facebook_login_checkout' ) && get_option( 'woocommerce_en
 
 			<?php endif; ?>
 
-		</div><!-- large-7 -->
+		</div>
 
 		<div class="large-5 col">
-			<?php if ( get_theme_mod( 'checkout_sticky_sidebar', 0 ) ) { ?>
-			<div class="is-sticky-column">
-				<div class="is-sticky-column__inner">
-					<?php } ?>
+			<?php flatsome_sticky_column_open( 'checkout_sticky_sidebar' ); ?>
 
 					<div class="col-inner <?php echo esc_attr( $sidebar_classes ); ?>">
 						<div class="checkout-sidebar sm-touch-scroll">
+
+							<?php do_action( 'woocommerce_checkout_before_order_review_heading' ); ?>
+
 							<h3 id="order_review_heading"><?php esc_html_e( 'Your order', 'woocommerce' ); ?></h3>
 
 							<?php do_action( 'woocommerce_checkout_before_order_review' ); ?>
@@ -102,13 +98,10 @@ if ( flatsome_option( 'facebook_login_checkout' ) && get_option( 'woocommerce_en
 						</div>
 					</div>
 
-					<?php if ( get_theme_mod( 'checkout_sticky_sidebar', 0 ) ) { ?>
-				</div>
-			</div>
-		<?php } ?>
-		</div><!-- large-5 -->
+			<?php flatsome_sticky_column_close( 'checkout_sticky_sidebar' ); ?>
+		</div>
 
-	</div><!-- row -->
+	</div>
 </form>
 
 <?php do_action( 'woocommerce_after_checkout_form', $checkout ); ?>

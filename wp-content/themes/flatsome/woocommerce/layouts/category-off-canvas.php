@@ -1,3 +1,12 @@
+<?php
+/**
+ * Category layout with off canvas sidebar.
+ *
+ * @package          Flatsome/WooCommerce/Templates
+ * @flatsome-version 3.16.0
+ */
+
+?>
 <div class="row category-page-row">
 
 		<div class="col large-12">
@@ -27,7 +36,7 @@
 
 		<?php
 
-		if ( fl_woocommerce_version_check( '3.4.0' ) ? woocommerce_product_loop() : have_posts() ) {
+		if ( woocommerce_product_loop() ) {
 
 			/**
 			 * Hook: woocommerce_before_shop_loop.
@@ -88,7 +97,7 @@
 		do_action( 'woocommerce_after_main_content' );
 		?>
 
-		</div><!-- col-fit  -->
+		</div>
 
 		<div id="shop-sidebar" class="mfp-hide">
 			<div class="sidebar-inner">
@@ -96,6 +105,6 @@
 				  $no_widgets_msg = '<p>You need to assign Widgets to <strong>"Shop Sidebar"</strong> in <a href="'.get_site_url().'/wp-admin/widgets.php">Appearance > Widgets</a> to show anything here</p>';
 				  if(is_active_sidebar('shop-sidebar')) { dynamic_sidebar('shop-sidebar'); } else{ echo $no_widgets_msg; }
 				?>
-			</div><!-- .sidebar-inner -->
-		</div><!-- large-3 -->
+			</div>
+		</div>
 </div>
