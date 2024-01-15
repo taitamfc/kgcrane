@@ -78,7 +78,7 @@ function ttfc_admin_columns_pricing_render_comlums($column, $post_id){
 
 // Hiển thị các cột phụ tùng ra bảng
 add_filter('manage_phu_tung_posts_columns','ttfc_admin_columns_phu_tung_filter_comlums');
-function ttfc_admin_columns_phu_tung_filter_comlums($column, $post_id){
+function ttfc_admin_columns_phu_tung_filter_comlums($comlums){
     $comlums['key_no']      = 'Key no';
     $comlums['part_no']     = 'Part no';
     $comlums['part_name']   = 'Part name';
