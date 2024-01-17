@@ -57,6 +57,14 @@ function wporg_options_page() {
     );
 
     add_submenu_page($parrent_slug,
+        'Nhập phụ tùng',
+        'Nhập phụ tùng',
+        'manage_options',
+        'kg-import_phu_tung',
+        'kg_admin_page_import_phu_tung',
+    );
+
+    add_submenu_page($parrent_slug,
         'Cài đặt',
         'Cài đặt',
         'manage_options',
@@ -77,6 +85,9 @@ function kg_admin_page_dashboard(){
 }
 function kg_admin_page_import(){
     include_once KG_PATH.'includes/admin_pages/import.php';
+}
+function kg_admin_page_import_phu_tung(){
+    include_once KG_PATH.'includes/admin_pages/import_phu_tung.php';
 }
 
 function kg_admin_page_tool(){
